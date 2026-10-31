@@ -1,0 +1,7 @@
+import {$,h,ic,cl} from './ui.js';import {live,fb} from './fb.js';import {productCard,cached,fresh,soldOut} from './cards.js';
+const F=[['bag','Foodstuffs','Rice, beans, oil, garri and more, sourced well and priced fairly.'],['send','Airtime & data','Top up any network in minutes, any time of day.'],['wallet','Ruth Wallet','Pay with your balance and send money to friends by Ruth ID.'],['truck','Delivery & tracking','Reliable delivery across Akure with live order tracking.']];
+$('#feat').append(...F.map(([i,t,d])=>h('div',{class:'lx-card'},ic(i),h('h3',{},t),h('p',{},d))));
+const pick=L=>{L=L.filter(p=>!soldOut(p)).sort((a,b)=>(!!b.featured-!!a.featured)||((b.createdAt?.seconds||0)-(a.createdAt?.seconds||0))).slice(0,8);if(!L.length)return;$('#psec').hidden=false;$('#pick').replaceChildren(...L.map(p=>productCard(p,{base:'shop.html'})))};
+pick(cached());if(live)fresh().then(pick).catch(()=>{});
+if(live)fb.getDocs(fb.query(fb.collection(fb.db,'posts'),fb.where('published','==',true),fb.limit(6))).then(s=>{const L=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.at?.seconds||0)-(a.at?.seconds||0)).slice(0,3);if(!L.length)return;$('#jsec').hidden=false;$('#blog').replaceChildren(...L.map(p=>h('a',{class:'pc',href:'blog.html?p='+p.id},cl(p.cover,640)?h('img',{src:cl(p.cover,640),alt:'',loading:'lazy'}):h('div',{class:'ph'},ic('book')),h('div',{class:'pb'},h('h3',{class:'clamp'},p.title),h('p',{class:'mut clamp'},(p.body||'').slice(0,120))))))}).catch(()=>{});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
